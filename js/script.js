@@ -7,8 +7,8 @@ const teamEndPoin = `${baseUrl}competitions/${leagueId}/teams`;
 const standingEndPoin = `${baseUrl}competitions/${leagueId}/standings`;
 const matchEndPoin = `${baseUrl}competitions/${leagueId}/matches`;
 
+
 const contents = document.querySelector("#content-list");
-const inf = document.querySelector("#detail-list");
 const title = document.querySelector(".card-title");
 const fetchHeader = {
     headers:{
@@ -31,16 +31,43 @@ function getListTeams(){
                     <p>Berdiri: ${team.founded}<br>
                         Markas: ${team.venue}
                     </p>
-                    <a href="#modal1" class="secondary-content"><i class="material-icons">info</i></a>
+                    <a href="#modal" data-id="${team.id}" class="secondary-content modal-trigger"><i class="material-icons " data-id="${team.id}">info</i></a>
                 </li>
             `
         });
         contents.innerHTML = '<ul class="collection">' + teams + '</ul>'
+        const detail = document.querySelectorAll('.secondary-content');
+        detail.forEach(btn => {
+            btn.onclick = (event) => {
+                let url = baseUrl + "teams/" + event.target.dataset.id;
+                fetch(url, fetchHeader)
+                    .then(response => response.json())
+                    .then(resDetail => {
+                        dataModal = `
+                        
+                        <img src="${resDetail.crestUrl}"  alt="" width="100px" align="center">
+                       
+                        <br><p>Nama Klub : ${resDetail.shortName}<br>
+                        Tahun Berdiri : ${resDetail.founded} <br>
+                        Markas  : ${resDetail.venue} <br>
+                        Alamat  : ${resDetail.address} <br>
+                        No.Tlp  : ${resDetail.phone} <br>
+                        Website : ${resDetail.website} <br>
+                        Email   : ${resDetail.email} <br>
+                        Warna Kebesaran : ${resDetail.clubColors} <br>
+                        </p>`
+                        console.log(resDetail);
+                        document.getElementById("nama-tim").innerHTML = resDetail.name;
+                        document.getElementById("isi-info").innerHTML = dataModal;
+                    })
+                console.log(event.target.dataset.id);
+                
+            }
+        })
     }).catch(err=>{
         console.error(err);
     })
 }
-
 
 function getListStandings(){
     title.innerHTML = "Klasemen Liga Primer Inggris";
@@ -188,7 +215,7 @@ function loadPage(page){
             break;
         case "scorers":
              getListScorers();
-             break;
+            break;
     }
 }
 
@@ -207,5 +234,10 @@ document.addEventListener('DOMContentLoaded', function() {
     var page = window.location.hash.substr(1);
     if (page === "" || page === "!") page = "teams";
     loadPage(page);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var elems = document.querySelectorAll('.modal');
+    var modalDetail = M.Modal.init(elems);
 });
    
